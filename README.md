@@ -4,13 +4,7 @@
 
 Team members: 
 
-- Student 1 [Rei](mailto:rsanchezarias@floridapoly.edu)
+- Student 1 [Rei](mailto:wsmith4725@floridapoly.edu)
 
-- Student 2 [Student 2](mailto:student2@floridapoly.edu)
-
-- Student 3 [Student 3](mailto:student3@floridapoly.edu)
-
-
-Our project investigates the main characteristics of popular movies in recent years.
-We will be using the data available at: 
-<https://github.com/reisanar/datasets/blob/master/IMDB_movies.csv> 
+This project will look into different characteristics of streaming services
+of providers such as Netflix, Hulu, and Disney+ using the data set below.
