@@ -4,7 +4,7 @@
 
 Team members: 
 
-- Student 1 [Wyatt Smith](mailto:wsmith4725@floridapoly.edu)
+- [Wyatt Smith](mailto:wsmith4725@floridapoly.edu)
 
 This project will look into different characteristics of streaming services
 of providers such as Netflix, Hulu, and Disney+ using the data set below.
