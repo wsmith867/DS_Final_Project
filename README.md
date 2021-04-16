@@ -8,3 +8,5 @@ Team members:
 
 This project will look into different characteristics of streaming services
 of providers such as Netflix, Hulu, and Disney+ using the data set below.
+
+https://github.com/wsmith867/DS_Final_Project/blob/master/data/MoviesOnStreamingPlatforms_updated.csv>

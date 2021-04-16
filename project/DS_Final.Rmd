@@ -1,11 +1,24 @@
-# Data Description: Movies  on different streaming platforms
+---
+title: "Final Report for Intro to Data Science"
+author: "Wyatt Smith - `wsmith4725@floridapoly.edu`"
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+---
 
-We use the `MoviesOnStreamingPlatforms_updated.csv` dataset available at 
-<https://github.com/wsmith867/DS_Final_Project/blob/master/data/MoviesOnStreamingPlatforms_updated.csv>
+# Preparation
 
-This dataset includes information of movies on different streaming platforms, specifically Netfilx, Hulu, Prime Video, and Disney+.
+Load in the libraries to be used.  Most of the work will be done using functions form the `tidyverse` package.
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+```
 
-Below we include variables and their description within the data set.
+## Import data set
+```{r, message=FALSE, warning=FALSE}
+platforms <- read_csv("https://github.com/wsmith867/DS_Final_Project/blob/master/data/MoviesOnStreamingPlatforms_updated.csv?raw=true")
+```
+
 Variable            | Description                               |
 --------------------|-------------------------------------------|
 `Title`             | Title name                                | 
@@ -22,4 +35,9 @@ Variable            | Description                               |
 `Genre`             | Category of Movie                         | 
 `Country`           | Country                                   |
 `Language`          | Language available in                     |
-`Runtime`           | Duration in minutes                       |
+`Runtime`           | Duration in minutes                       | 
+
+```{r}
+platforms <- na.omit(platforms)
+```
+
