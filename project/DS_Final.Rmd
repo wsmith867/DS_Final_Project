@@ -19,6 +19,17 @@ library(tidyverse)
 platforms <- read_csv("https://github.com/wsmith867/DS_Final_Project/blob/master/data/MoviesOnStreamingPlatforms_updated.csv?raw=true")
 ```
 
+
+# Introduction
+**With the emergence of streaming services, it has become one of, if not, the most popular way to watch movies and/or shows.  At first Netflix was the most recognizable service to use, but now there are multiple choices of platforms to stream from, with each providing its own selection of entertainment.  The aim of this report is to explore and compare the different streaming platforms, from their library size to overall ratings of movies within their libraries.  We will also explore other characteristics of each platform, such as exclusivity of each; given that Netflix has its own line of original movies and shows, and Disney+ would be the main platform for Disney owned movies and shows.**
+
+
+# Data Description
+
+```{r}
+glimpse(platforms)
+```
+
 Variable            | Description                               |
 --------------------|-------------------------------------------|
 `Title`             | Title name                                | 
@@ -37,7 +48,7 @@ Variable            | Description                               |
 `Language`          | Language available in                     |
 `Runtime`           | Duration in minutes                       | 
 
-Upon review of the data set, it was found that Rotten Tomatoes had 69% of its values as NA values, so we shall remove this variable and then remove any further NA values.  Given that the IMDb variable is still included, we still have a rating variable to use for data analysis.
+According to the source of the data set, it was found that Rotten Tomatoes had 69% of its values as NA values, so we shall remove this variable from the data set.  Given that the IMDb variable is still included, we still have a rating variable to use for data analysis.
 
 ```{r}
 platforms <- platforms %>% 
@@ -47,4 +58,33 @@ platforms <- platforms %>%
 ```{r}
 platforms <- na.omit(platforms)
 ```
+
+# Data Exploration
+
+**In terms of just raw numbers, which streaming platform has the largest library?**
+```{r}
+platforms %>% 
+  gather(Netflix, Hulu, `Prime Video`, `Disney+`, key = "platform", value = "value", na.rm = T, convert = T) %>% 
+  group_by(platform) %>% 
+  filter(value == 1) %>% 
+  count()
+  #ggplot(aes(x = platform)) +
+  #geom_bar()
+```
+```{r}
+platforms %>% 
+  filter(Netflix == 1 & Hulu == 0 & `Prime Video` == 0 & `Disney+` == 0)
+```
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
 
