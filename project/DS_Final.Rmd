@@ -21,7 +21,7 @@ platforms <- read_csv("https://github.com/wsmith867/DS_Final_Project/blob/master
 
 
 # Introduction
-**With the emergence of streaming services, it has become one of, if not, the most popular way to watch movies and/or shows.  At first Netflix was the most recognizable service to use, but now there are multiple choices of platforms to stream from, with each providing its own selection of entertainment.  The aim of this report is to explore and compare the different streaming platforms, from their library size to overall ratings of movies within their libraries.  We will also explore other characteristics of each platform, such as exclusivity of each; given that Netflix has its own line of original movies and shows, and Disney+ would be the main platform for Disney owned movies and shows.**
+**With the emergence of streaming services, it has become one of, if not, the most popular way to watch movies and/or shows.  At first Netflix was the most recognizable service to use, but now there are multiple choices of platforms to stream from, with each providing its own selection of entertainment.  The aim of this report is to explore and compare the different streaming platforms, from their library size to overall ratings of movies within their libraries.  We will also explore other characteristics of each platform, such as exclusivity of each; given that Netflix has its own line of original movies and shows, and Disney+ would be the main platform for Disney owned movies and shows.  Within the current data set, it classifies whether an entry is a movie or show, but all data entries within this data set are all movies.  Thus, they will be referred to as such.**
 
 
 # Data Description
@@ -67,17 +67,63 @@ platforms %>%
   gather(Netflix, Hulu, `Prime Video`, `Disney+`, key = "platform", value = "value", na.rm = T, convert = T) %>% 
   group_by(platform) %>% 
   filter(value == 1) %>% 
-  count()
-  #ggplot(aes(x = platform)) +
-  #geom_bar()
+  #count()
+  ggplot(aes(x = platform, fill = platform)) +
+  geom_bar() +
+  labs(title = "Number of movies available on each platform", y = "library size")
 ```
-```{r}
-platforms %>% 
-  filter(Netflix == 1 & Hulu == 0 & `Prime Video` == 0 & `Disney+` == 0)
-```
-```{r}
 
+
+**Now how many of these are exclusive to each individual platform?**
+```{r}
+platformNetflix <- platforms %>% 
+  filter(Netflix == 1 & Hulu == 0 & `Prime Video` == 0 & `Disney+` == 0) %>% 
+  select(ID, Netflix)
+
+platformHulu <- platforms %>% 
+  filter(Netflix == 0 & Hulu == 1 & `Prime Video` == 0 & `Disney+` == 0) %>% 
+  select(ID, Hulu)
+
+platformPrime <- platforms %>% 
+  filter(Netflix == 0 & Hulu == 0 & `Prime Video` == 1 & `Disney+` == 0) %>% 
+  select(ID, `Prime Video`)
+
+platformDisney <- platforms %>% 
+  filter(Netflix == 0 & Hulu == 0 & `Prime Video` == 0 & `Disney+` == 1) %>% 
+  select(ID, `Disney+`)
 ```
+
+```{r}
+platformsExclusive <- data.frame(Netflix = platformNetflix,
+                                 Hulu = platformHulu,
+                                 Prime = platformPrime,
+                                 Disney = platformDisney)
+platformsExclusive
+```
+```{r}
+platformsExclusive <- merge(platformNetflix, platformHulu, by = "ID", all = T)
+platformsExclusive <- merge(platformsExclusive, platformPrime, by = "ID", all = T)
+platformsExclusive <- merge(platformsExclusive, platformDisney, by = "ID", all = T)
+platformsExclusive[is.na(platformsExclusive)] <- 0
+platformsExclusive
+```
+```{r}
+platformsExclusive %>% 
+  gather(Netflix, Hulu, `Prime Video`, `Disney+`, key = "platform", value = "value") %>% 
+  filter(value == 1) %>% 
+  #group_by(platform) %>% 
+  #count()
+  ggplot(aes(x = platform, fill = platform)) +
+  geom_bar() +
+  labs(title = "Movie exclusives on each platform", y = "Num of exclusives", subtitle  = "Exclusive meaning only available on one platform") 
+  
+```
+
+
+
+
+
+
 
 
 
