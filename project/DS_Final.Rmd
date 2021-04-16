@@ -37,6 +37,13 @@ Variable            | Description                               |
 `Language`          | Language available in                     |
 `Runtime`           | Duration in minutes                       | 
 
+Upon review of the data set, it was found that Rotten Tomatoes had 69% of its values as NA values, so we shall remove this variable and then remove any further NA values.  Given that the IMDb variable is still included, we still have a rating variable to use for data analysis.
+
+```{r}
+platforms <- platforms %>% 
+  select(c(-7))
+```
+
 ```{r}
 platforms <- na.omit(platforms)
 ```
