@@ -93,13 +93,7 @@ platformDisney <- platforms %>%
   select(ID, `Disney+`)
 ```
 
-```{r}
-platformsExclusive <- data.frame(Netflix = platformNetflix,
-                                 Hulu = platformHulu,
-                                 Prime = platformPrime,
-                                 Disney = platformDisney)
-platformsExclusive
-```
+
 ```{r}
 platformsExclusive <- merge(platformNetflix, platformHulu, by = "ID", all = T)
 platformsExclusive <- merge(platformsExclusive, platformPrime, by = "ID", all = T)
@@ -118,6 +112,7 @@ platformsExclusive %>%
   labs(title = "Movie exclusives on each platform", y = "Num of exclusives", subtitle  = "Exclusive meaning only available on one platform") 
   
 ```
+
 
 
 
