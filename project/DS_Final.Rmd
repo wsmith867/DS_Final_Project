@@ -21,7 +21,7 @@ platforms <- read_csv("https://github.com/wsmith867/DS_Final_Project/blob/master
 
 
 # Introduction
-**With the emergence of streaming services, it has become one of, if not, the most popular way to watch movies and/or shows.  At first Netflix was the most recognizable service to use, but now there are multiple choices of platforms to stream from, with each providing its own selection of entertainment.  The aim of this report is to explore and compare the different streaming platforms, from their library size to overall ratings of movies within their libraries.  We will also explore other characteristics of each platform, such as exclusivity of each; given that Netflix has its own line of original movies and shows, and Disney+ would be the main platform for Disney owned movies and shows.  Within the current data set, it classifies whether an entry is a movie or show, but all data entries within this data set are all movies.  Thus, they will be referred to as such.**
+With the emergence of streaming services, it has become one of, if not, the most popular way to watch movies and/or shows.  At first Netflix was the most recognizable service to use, but now there are multiple choices of platforms to stream from, with each providing its own selection of entertainment.  The aim of this report is to explore and compare the different streaming platforms, from their library size to overall ratings of movies within their libraries.  We will also explore other characteristics of each platform, such as exclusivity of each; given that Netflix has its own line of original movies and shows, and Disney+ would be the main platform for Disney owned movies and shows.  Within the current data set, it classifies whether an entry is a movie or show, but all data entries within this data set are all movies.  Thus, they will be referred to as such.
 
 
 # Data Description
@@ -59,42 +59,96 @@ platforms <- platforms %>%
 platforms <- na.omit(platforms)
 ```
 
-# Data Exploration
+To help avoid errors going forward, we will be renaming `Prime Video` and `Disney+`.
+```{r}
+platforms <- platforms %>% 
+  rename(PrimeVideo = `Prime Video`,
+         DisneyP = `Disney+`)
+```
 
-**In terms of just raw numbers, which streaming platform has the largest library?**
+
+# Data Exploration
 ```{r}
 platforms %>% 
-  gather(Netflix, Hulu, `Prime Video`, `Disney+`, key = "platform", value = "value", na.rm = T, convert = T) %>% 
+  head(10)
+```
+
+
+
+## Basic Exploration
+Let us begin with more some overall data analysis, before focusing on the platforms themselves.
+
+### Rating Distribution
+```{r}
+platforms %>% 
+  ggplot(aes(x = IMDb)) +
+  geom_histogram(color = 'white', fill = 'salmon') +
+  labs(title = "Distribution of IMDb ratings")
+```
+
+### Movie Runtimes
+```{r}
+platforms %>% 
+  ggplot(aes(x = Runtime)) +
+  geom_histogram(color = 'white', fill = 'salmon') +
+  labs(x = "Runtime (Minutes)") +
+  labs(title = "Distribution of movie length")
+```
+
+### Year of release Distribution
+```{r}
+platforms %>% 
+  ggplot(aes(x = Year)) +
+  geom_histogram(color = 'white', fill = 'purple') +
+  labs(title = "Years movies were released")
+```
+
+
+### Targeted Age Groups
+```{r}
+platforms %>% 
+  ggplot(aes(Age)) +
+  geom_bar(color = 'white', fill = 'lightblue') +
+  labs(title = "Number of movies for each target age group")
+```
+
+## Platform exploration
+Now we can focus on the platforms themselves, specifically on the size of their libraries.
+
+### Library Size
+In terms of just raw numbers, which streaming platform has the largest library?
+```{r}
+platforms %>% 
+  gather(Netflix, Hulu, PrimeVideo, DisneyP, key = "platform", value = "value") %>% 
   group_by(platform) %>% 
   filter(value == 1) %>% 
-  #count()
   ggplot(aes(x = platform, fill = platform)) +
   geom_bar() +
   labs(title = "Number of movies available on each platform", y = "library size")
 ```
 
-
-**Now how many of these are exclusive to each individual platform?**
+### Exclusivity
+Now how many of these are exclusive to each individual platform?
 ```{r}
 platformNetflix <- platforms %>% 
-  filter(Netflix == 1 & Hulu == 0 & `Prime Video` == 0 & `Disney+` == 0) %>% 
+  filter(Netflix == 1 & Hulu == 0 & PrimeVideo == 0 & DisneyP == 0) %>% 
   select(ID, Netflix)
 
 platformHulu <- platforms %>% 
-  filter(Netflix == 0 & Hulu == 1 & `Prime Video` == 0 & `Disney+` == 0) %>% 
+  filter(Netflix == 0 & Hulu == 1 & PrimeVideo == 0 & DisneyP == 0) %>% 
   select(ID, Hulu)
 
 platformPrime <- platforms %>% 
-  filter(Netflix == 0 & Hulu == 0 & `Prime Video` == 1 & `Disney+` == 0) %>% 
-  select(ID, `Prime Video`)
+  filter(Netflix == 0 & Hulu == 0 & PrimeVideo == 1 & DisneyP == 0) %>% 
+  select(ID, PrimeVideo)
 
 platformDisney <- platforms %>% 
-  filter(Netflix == 0 & Hulu == 0 & `Prime Video` == 0 & `Disney+` == 1) %>% 
-  select(ID, `Disney+`)
+  filter(Netflix == 0 & Hulu == 0 & PrimeVideo == 0 & DisneyP == 1) %>% 
+  select(ID, DisneyP)
 ```
 
-
 ```{r}
+rm(platformsExclusive) #to avoid dublicating columns
 platformsExclusive <- merge(platformNetflix, platformHulu, by = "ID", all = T)
 platformsExclusive <- merge(platformsExclusive, platformPrime, by = "ID", all = T)
 platformsExclusive <- merge(platformsExclusive, platformDisney, by = "ID", all = T)
@@ -103,24 +157,89 @@ platformsExclusive
 ```
 ```{r}
 platformsExclusive %>% 
-  gather(Netflix, Hulu, `Prime Video`, `Disney+`, key = "platform", value = "value") %>% 
+  gather(Netflix, Hulu, PrimeVideo, DisneyP, key = "platform", value = "value") %>% 
   filter(value == 1) %>% 
-  #group_by(platform) %>% 
-  #count()
   ggplot(aes(x = platform, fill = platform)) +
   geom_bar() +
   labs(title = "Movie exclusives on each platform", y = "Num of exclusives", subtitle  = "Exclusive meaning only available on one platform") 
   
 ```
 
+# Research Questions
+
+## Ratings among platforms
+As we can see, Prime has an enormous library, having almost triple over Netflix in exclusives alone.  But does having a larger library make it better?  Maybe what someone is looking for in a streaming platform isn't quantity, but quality.  So then, what are the average ratings of movies each platform provides?
+```{r}
+platforms %>% 
+  gather(Netflix, Hulu, PrimeVideo, DisneyP, key = "platform", value = "value") %>% 
+  group_by(platform) %>% 
+  filter(value == 1) %>% 
+  summarise(ave_score = mean(IMDb))
+```
+
+Prime Video does in fact have a lower average rating score compared to the other platforms.  Now this is obviously caused the sheer number of movies that Prime has, which will lower the average.  But it is not that far off from the rest of the platforms.  Now comes the question of if platform exclusives change this, as these are including movies that are shared among other platforms.
+
+## Ratings among platforms (exclusives)
+```{r}
+platformsIMDb<- platforms %>% 
+  select(ID, IMDb)
+```
+
+```{r}
+platformsExclusive <- merge(platformsExclusive, platformsIMDb, by = "ID", all = T)
+platformsExclusive
+```
+```{r}
+platformsExclusive %>% 
+  gather(Netflix, Hulu, PrimeVideo, DisneyP, key = "platform", value = "value") %>% 
+  group_by(platform) %>% 
+  filter(value == 1) %>% 
+  summarise(ave_score = mean(IMDb))
+```
+Comparing these scores to the scores above, we can see that any changes was very small.  Prime Video's average rating went slightly lower when including only exclusives, which in turn is most likely why the other three platform's ratings went up slightly.  But this does give an interesting insight to how Disney+, Hulu, and Netflix compare to each other.
+
+We can see that Disney+ and Netflix have almost the same average rating, in both exclusives and shared movies.  However, Disney+ has less than half of a library size compared to Netflix, yet it still competes with Netflix, technically beating it by .1 with their average ratings.  And Netflix is able to keep a decent average score even though it's library size is almost 1500 movies.
+
+## Distribution of target Age for each platform
+How much of each age group does each platform target towards?
+```{r}
+platforms %>% 
+  gather(Netflix, Hulu, PrimeVideo, DisneyP, key = "platform", value = "value") %>% 
+  group_by(platform) %>% 
+  filter(value == 1) %>% 
+  count(Age) %>% 
+  ggplot(aes(x = platform, y = n, color = Age)) +
+  geom_point(size = 2.5) +
+  labs(title = "Num of movies for each target age group")
+```
+Here we can the distribution of each different age group for each platform.  Comparatively, Disney+ has almost an inverse number of movies aimed at 18+ compared to the other three.  So you could assume that if you wanted to use a platform that caters to a higher age group then you would pick one of the other three.
+
+## Age of movies on each platform
+How recent are the movies on each platform?  Would newer platforms such as Disney+ have the most?
+```{r}
+platforms %>% 
+  gather(Netflix, Hulu, PrimeVideo, DisneyP, key = "platform", value = "value") %>% 
+  group_by(platform) %>% 
+  filter(value == 1) %>% 
+  count(Year) %>% 
+  ggplot(aes(x = platform, y = n, fill = Year)) +
+  geom_col() +
+  labs(title = "Age of movies within each platform")
+```
+
+# Conclusion
 
 
+# Data Sources
+You can find the data set used from either the GitHub repo, or from the main source which includes data descriptions.
 
+**GitHub:** 
 
+ - `https://github.com/wsmith867/DS_Final_Project/blob/master/data/MoviesOnStreamingPlatforms_updated.csv`
+ 
+**Source:** 
 
-
-
-
+ - `https://www.kaggle.com/ruchi798/movies-on-netflix-prime-video-hulu-and-disney`
 
 
 
