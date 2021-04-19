@@ -59,7 +59,7 @@ platforms <- platforms %>%
 platforms <- na.omit(platforms)
 ```
 
-To help avoid errors going forward, we will be renaming `Prime Video` and `Disney+`.
+To help avoid errors going forward, we will be renaming `Prime Video` and `Disney+`.  Plus this will make it easier to type out the full variable name if need be.
 ```{r}
 platforms <- platforms %>% 
   rename(PrimeVideo = `Prime Video`,
@@ -107,6 +107,7 @@ platforms %>%
 ### Targeted Age Groups
 ```{r}
 platforms %>% 
+  mutate(Age = fct_relevel(Age, "16+", "all", "13+", "7+", "18+")) %>% 
   ggplot(aes(Age)) +
   geom_bar(color = 'white', fill = 'lightblue') +
   labs(title = "Number of movies for each target age group")
@@ -148,7 +149,7 @@ platformDisney <- platforms %>%
 ```
 
 ```{r}
-rm(platformsExclusive) #to avoid dublicating columns
+#rm(platformsExclusive) #to avoid dublicating columns
 platformsExclusive <- merge(platformNetflix, platformHulu, by = "ID", all = T)
 platformsExclusive <- merge(platformsExclusive, platformPrime, by = "ID", all = T)
 platformsExclusive <- merge(platformsExclusive, platformDisney, by = "ID", all = T)
@@ -159,6 +160,7 @@ platformsExclusive
 platformsExclusive %>% 
   gather(Netflix, Hulu, PrimeVideo, DisneyP, key = "platform", value = "value") %>% 
   filter(value == 1) %>% 
+  mutate(platform = fct_relevel(platform, "Hulu", "DisneyP", "Netflix", "PrimeVideo")) %>% 
   ggplot(aes(x = platform, fill = platform)) +
   geom_bar() +
   labs(title = "Movie exclusives on each platform", y = "Num of exclusives", subtitle  = "Exclusive meaning only available on one platform") 
@@ -200,7 +202,7 @@ Comparing these scores to the scores above, we can see that any changes was very
 
 We can see that Disney+ and Netflix have almost the same average rating, in both exclusives and shared movies.  However, Disney+ has less than half of a library size compared to Netflix, yet it still competes with Netflix, technically beating it by .1 with their average ratings.  And Netflix is able to keep a decent average score even though it's library size is almost 1500 movies.
 
-## Distribution of target Age for each platform
+## Proportion of target Age for each platform
 How much of each age group does each platform target towards?
 ```{r}
 platforms %>% 
@@ -215,7 +217,7 @@ platforms %>%
 Here we can the distribution of each different age group for each platform.  Comparatively, Disney+ has almost an inverse number of movies aimed at 18+ compared to the other three.  So you could assume that if you wanted to use a platform that caters to a higher age group then you would pick one of the other three.
 
 ## Age of movies on each platform
-How recent are the movies on each platform?  Would newer platforms such as Disney+ have the most?
+How recent are the movies on each platform?  Would newer platforms such as Disney+ include mostly newer movies?
 ```{r}
 platforms %>% 
   gather(Netflix, Hulu, PrimeVideo, DisneyP, key = "platform", value = "value") %>% 
@@ -226,9 +228,13 @@ platforms %>%
   geom_col() +
   labs(title = "Age of movies within each platform")
 ```
+So my initial thought of Disney+ having mostly newer movies was not really that true.  Which now thinking of it actually makes sense.  Disney has been around much longer before they launched their streaming platform.  So it makes sense that they would include the movies they made before hand.  Hulu and Netflix seem to mostly include newer movies, and of course, Prime Video with its library size includes a large range of years movies were released.
+
 
 # Conclusion
+As you may have guessed, each platform has its own merits.  We pretty much have a spectrum of two extremes.  If you want to have a large selection of movies available to you, whether or not they are exclusive, then Prime Video would be a great platform for you.  But having a larger library could mean potentially a greater number of movies that you would not care for.   If that is the case then Netflix would be the next best.
 
+If you care about certain exclusives, well that is what Disney+ is mainly advertising.  Disney+ has been gaining popularity because of the exclusive shows and movies that they provide.  Netflix also has some of this as well, with their Netflix original movies and shows.  Or you could potentially subscribe to multiple platforms if you can.  Again, recent popularity, I bet that Disney+ would be one that numerous people would subscribe to.
 
 # Data Sources
 You can find the data set used from either the GitHub repo, or from the main source which includes data descriptions.
