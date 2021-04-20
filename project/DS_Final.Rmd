@@ -90,10 +90,27 @@ platforms %>%
 ```{r}
 platforms %>% 
   ggplot(aes(x = Runtime)) +
-  geom_histogram(color = 'white', fill = 'salmon') +
+  geom_histogram(color = 'white', fill = 'tan') +
   labs(x = "Runtime (Minutes)") +
   labs(title = "Distribution of movie length")
 ```
+We can see that there are run time that are very short, but also run times that are very long.  Let's see what movies those are at the ends.
+```{r}
+platforms %>% 
+  filter(Runtime > 180) %>% 
+  select(3, 16) %>% 
+  arrange(desc(Runtime))
+```
+
+We can see that the longest movies we have here is 260 minutes long.  That's over 4 hours!  But now lets see the movies on the shorter spectrum.
+```{r}
+platforms %>% 
+  filter(Runtime < 40) %>% 
+  select(3, 16) %>% 
+  arrange(Runtime)
+```
+We have "movies" in here which are only 2 minutes long.  Most of these are actually shorts that studios sometimes make, whether they are original shorts or shorts from other movies.
+
 
 ### Year of release Distribution
 ```{r}
@@ -102,7 +119,13 @@ platforms %>%
   geom_histogram(color = 'white', fill = 'purple') +
   labs(title = "Years movies were released")
 ```
-
+Notice how far back the year of the movie goes.  And even though we don't see any fill color, we can see that the x-axis goes as far back as 1900.  Let us see what movies are that old, and how many we have.
+```{r}
+platforms %>% 
+  filter(Year < 1930) %>% 
+  select(3:5, 7:10)
+```
+So we do in fact have some pretty old movies, with one going as far back as 1902.  And all but one of these films are exclusive to Prime Video.
 
 ### Targeted Age Groups
 ```{r}
@@ -112,6 +135,7 @@ platforms %>%
   geom_bar(color = 'white', fill = 'lightblue') +
   labs(title = "Number of movies for each target age group")
 ```
+Interesting that there is a significantly lower number of movies aimed at 16+.  Most likely the reason for this is that if a movie would be targeted towards 16+ would instead be classified under 13+ or 18+.
 
 ## Platform exploration
 Now we can focus on the platforms themselves, specifically on the size of their libraries.
@@ -124,6 +148,7 @@ platforms %>%
   group_by(platform) %>% 
   filter(value == 1) %>% 
   ggplot(aes(x = platform, fill = platform)) +
+  scale_fill_manual(values = c("royalblue", "chartreuse3", "red3", "orange2")) +
   geom_bar() +
   labs(title = "Number of movies available on each platform", y = "library size")
 ```
@@ -162,10 +187,20 @@ platformsExclusive %>%
   filter(value == 1) %>% 
   mutate(platform = fct_relevel(platform, "Hulu", "DisneyP", "Netflix", "PrimeVideo")) %>% 
   ggplot(aes(x = platform, fill = platform)) +
+  scale_fill_manual(values = c("chartreuse3", "royalblue", "red3", "orange2")) +
   geom_bar() +
   labs(title = "Movie exclusives on each platform", y = "Num of exclusives", subtitle  = "Exclusive meaning only available on one platform") 
   
 ```
+This chart shows that a decent number of movies available on Hulu is also available on a different platform.  And if you notice, Disney+ has almost no change in library size.  Let us compare the library size of Disney+ of shared movies and exclusive movies.
+
+```{r}
+tibble(shared = platforms %>% filter(DisneyP == 1) %>% nrow(),
+       exclusive = nrow(platformDisney),
+       difference = shared - exclusive)
+```
+There are only 24 movies in Disney+'s library that is shared among any of the other 3 platforms.  Now this could be higher before removing observations due to NA values.
+
 
 # Research Questions
 
@@ -230,11 +265,28 @@ platforms %>%
 ```
 So my initial thought of Disney+ having mostly newer movies was not really that true.  Which now thinking of it actually makes sense.  Disney has been around much longer before they launched their streaming platform.  So it makes sense that they would include the movies they made before hand.  Hulu and Netflix seem to mostly include newer movies, and of course, Prime Video with its library size includes a large range of years movies were released.
 
+## Average runtime on each platform
+What are the average movie run times for each streaming platform.
+```{r}
+platforms %>% 
+  gather(Netflix, Hulu, PrimeVideo, DisneyP, key = "platform", value = "value") %>% 
+  group_by(platform) %>% 
+  filter(value == 1) %>% 
+  summarise(ave_score = mean(Runtime))
+```
+Once again, given the large number of movies available on Prime Video that it has skewed the average run time to about an hour and a half.  But Netflix here has the highest average run time, getting closer to 2 hours.
+
 
 # Conclusion
-As you may have guessed, each platform has its own merits.  We pretty much have a spectrum of two extremes.  If you want to have a large selection of movies available to you, whether or not they are exclusive, then Prime Video would be a great platform for you.  But having a larger library could mean potentially a greater number of movies that you would not care for.   If that is the case then Netflix would be the next best.
+As you may have guessed, each platform has its own merits.  And we pretty much have a spectrum of two extremes when it comes to movie availability.  From Prime Video, easily having the largest library size, to Hulu or Disney+, both of which were on the smaller size when it comes to their movie library.  However, each platform does have their own pros and cons.
 
-If you care about certain exclusives, well that is what Disney+ is mainly advertising.  Disney+ has been gaining popularity because of the exclusive shows and movies that they provide.  Netflix also has some of this as well, with their Netflix original movies and shows.  Or you could potentially subscribe to multiple platforms if you can.  Again, recent popularity, I bet that Disney+ would be one that numerous people would subscribe to.
+If you want to have a large selection of movies available to you, whether or not they are exclusive, then Prime Video would be a great platform for you.  Even though a decent portion of the observations were removed due to NA values, Prime Video still had almost three times the library size when compared to the next largest library of Netflix.  An effect of having such a large library is its variety.  The range of years that are available to Prime Video makes it a perfect platform for someone who enjoys much older movies.  Prime Video also provides the highest number of mature movies, with a majority of its available movies being targeted towards 18+.  However, there is a draw back to having such a large library, and that is the potential number of "junk" movies.  Now the definition of a junk movie will change from person to person depending on their preferences, but if a person finds that a majority of the movies available on Prime Video are not ones that they like, then they might want to see about using a different platform.
+
+Netflix is in an interesting spot of almost seeming like the a "best of both worlds option".  While it does not have the absolutely massive library size of Prime Video, it still has the second highest in both shared movies and exclusive movies.  I would also place Hulu in a similar situation as Netflix, even though the amount of exclusives on Hulu is the smallest, with shared movies it has the third largest library size.  And both of these platforms are typically advertised or viewed in a similar way, or that is how I view them at least.
+
+Now we have the newest platform among the four here, Disney+.  Launched in late 2019, it is only about two years old, and yet has made a huge splash in the streaming industry.  The biggest contributor to this fact is the library it provides exclusively.  If you compare the shared library size and exclusive library size of Disney+, it almost looks like it does not change, and when we compared its shared library size to its exclusives we found that only 24 movies are shared.  Now if you did some research into Disney then this should not come as a surprise to you.  Disney is notorious in keeping exclusive rights to their products, and Disney+ with its exclusives shows that.  But again, this is also their main advertisement, the fact that you will not find any of their movies on other streaming platform but theirs.  Keep in mind that the other three platforms also provide their own exlcusives and advertise as such, but not to the extent of Disney+.
+
+So in the end, it really mostly comes down to preference on whether Prime Video, Netflix, or Hulu is the platform for you.  Disney+ is different in that if you are using Disney+ then it is mostly because of the exclusive movies that it provides.  It is also common for someone to use multiple platforms, most likely a combination of Disney+ and one of the other three.  And this data set only takes into account of movies on the platforms.  Shows are not on here even though there is a variable that denotes whether an entry is a movie or show.
 
 # Data Sources
 You can find the data set used from either the GitHub repo, or from the main source which includes data descriptions.
